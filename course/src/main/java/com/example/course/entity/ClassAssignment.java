@@ -6,19 +6,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Document(collection = "class_assignments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "courses")
-public class Course {
+@Builder
+public class ClassAssignment {
     @Id
     private String id;
-    private String degree;
-    private String department;
     private String year;
-    private String courseCode;
-    private String courseName;
     private String semester;
-    private int credits;
-    private String color;
+    private String department;
+    private String courseId;
+    private String facultyId;
+    private List<String> studentIds;
 }
