@@ -2,7 +2,6 @@ package com.example.course.service;
 
 import com.example.course.dto.CourseDTO;
 import com.example.course.entity.Course;
-
 import java.util.List;
 
 public interface CourseService {
@@ -11,4 +10,5 @@ public interface CourseService {
     Course getCourseById(String id);
     Course updateCourse(String id, CourseDTO dto);
     void deleteCourse(String id);
+    List<Course> getCoursesForStudent(String department, String year, String semester);
 }

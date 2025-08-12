@@ -7,16 +7,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "courses")
-public class Course {
+@Document(collection = "students")
+public class Student {
     @Id
     private String id;
-    private String degree;
+    private String name;
+    private String rollNo;
     private String department;
     private String year;
-    private String courseCode;
-    private String courseName;
     private String semester;
-    private int credits;
-    private String color;
 }
