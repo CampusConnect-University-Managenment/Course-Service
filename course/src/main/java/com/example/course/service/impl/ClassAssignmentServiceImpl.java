@@ -1,10 +1,12 @@
 package com.example.course.service.impl;
 
 import com.example.course.dto.ClassAssignmentDTO;
+import com.example.course.dto.FacultyDTO;
 import com.example.course.entity.ClassAssignment;
 import com.example.course.model.AssignmentWithDetails;
 import com.example.course.repository.ClassAssignmentRepository;
 import com.example.course.service.ClassAssignmentService;
+import com.example.course.feign.ProfileClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class ClassAssignmentServiceImpl implements ClassAssignmentService {
 
     private final ClassAssignmentRepository repository;
+    private final ProfileClient profileClient;
 
     @Override
     public ClassAssignment createAssignment(ClassAssignmentDTO dto) {
@@ -50,8 +53,13 @@ public class ClassAssignmentServiceImpl implements ClassAssignmentService {
     }
 
     private String getFacultyNameById(String facultyId) {
-        // Replace with WebClient or FeignClient to call Profile Service
-        return "Faculty " + facultyId;
+        try {
+            FacultyDTO faculty = profileClient.getFacultyByCode(facultyId);
+            return faculty.getFirstName() + " " + faculty.getLastName();
+        } catch (Exception e) {
+            // Log exception if you have logger (not shown here)
+            return "Unknown Faculty (" + facultyId + ")";
+        }
     }
 
     @Override

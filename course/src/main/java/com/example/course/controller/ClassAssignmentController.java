@@ -1,11 +1,12 @@
 package com.example.course.controller;
 
 import com.example.course.dto.ClassAssignmentDTO;
+import com.example.course.dto.FacultyDTO;
 import com.example.course.entity.ClassAssignment;
 import com.example.course.model.AssignmentWithDetails;
 import com.example.course.response.CommonResponse;
 import com.example.course.service.ClassAssignmentService;
-import com.example.course.utils.DummyClassAssignmentUtil;
+import com.example.course.feign.ProfileClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ import java.util.Map;
 public class ClassAssignmentController {
 
     private final ClassAssignmentService service;
-    private final DummyClassAssignmentUtil dummyUtil;
+    private final ProfileClient profileClient; // <-- Feign client injected
 
     @PostMapping
     public ResponseEntity<CommonResponse<ClassAssignment>> assignClass(@RequestBody ClassAssignmentDTO dto) {
@@ -41,8 +42,14 @@ public class ClassAssignmentController {
             @RequestParam String semester
     ) {
         Map<String, Object> response = new HashMap<>();
-        response.put("faculties", dummyUtil.getFacultiesFor(department));
-        response.put("students", dummyUtil.getStudentsFor(department, year, semester));
+
+        // Correct method name and type from Feign client
+        List<FacultyDTO> faculties = profileClient.getAllFaculty();
+        response.put("faculties", faculties);
+
+        // Placeholder for students - you can add real data later
+        response.put("students", List.of());
+
         return ResponseEntity.ok(new CommonResponse<>(true, "Assignable data fetched", response));
     }
 
