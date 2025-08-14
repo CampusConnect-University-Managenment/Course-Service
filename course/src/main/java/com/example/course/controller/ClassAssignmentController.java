@@ -21,7 +21,8 @@ import java.util.Map;
 public class ClassAssignmentController {
 
     private final ClassAssignmentService service;
-    private final ProfileClient profileClient; // <-- Feign client injected
+    private final ProfileClient profileClient; // Feign client for faculty/profile
+   // <-- new injection
 
     @PostMapping
     public ResponseEntity<CommonResponse<ClassAssignment>> assignClass(@RequestBody ClassAssignmentDTO dto) {
@@ -35,6 +36,10 @@ public class ClassAssignmentController {
         return ResponseEntity.ok(new CommonResponse<>(true, "Assignments fetched", assignments));
     }
 
+    /**
+     * Existing assignable endpoint (keeps returning faculties etc).
+     * Students are fetched separately with the new endpoint below.
+     */
     @GetMapping("/assignable")
     public ResponseEntity<CommonResponse<Map<String, Object>>> getAssignableData(
             @RequestParam String year,
@@ -43,15 +48,25 @@ public class ClassAssignmentController {
     ) {
         Map<String, Object> response = new HashMap<>();
 
-        // Correct method name and type from Feign client
+        // Call Profile Service to get faculties
         List<FacultyDTO> faculties = profileClient.getAllFaculty();
         response.put("faculties", faculties);
 
-        // Placeholder for students - you can add real data later
+        // leave students empty here; frontend will call /students once a course is selected
         response.put("students", List.of());
 
         return ResponseEntity.ok(new CommonResponse<>(true, "Assignable data fetched", response));
     }
+
+    /**
+     * NEW endpoint:
+     * Fetch enrolled students for a given course (filtered by department/year/semester).
+     *
+     * Frontend will call:
+     * GET /admin/class-assignments/students?courseId={courseId}&department={dept}&year={year}&semester={semester}
+     *
+     * Response: CommonResponse with data = List<EnrollmentDTO>
+     */
 
     @GetMapping("/with-names")
     public ResponseEntity<CommonResponse<List<AssignmentWithDetails>>> getAssignmentDetails() {

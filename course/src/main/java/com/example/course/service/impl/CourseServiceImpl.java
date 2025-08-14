@@ -2,13 +2,12 @@ package com.example.course.service.impl;
 
 import com.example.course.dto.CourseDTO;
 import com.example.course.entity.Course;
+import com.example.course.exception.CourseNotFoundException;
 import com.example.course.repository.CourseRepository;
 import com.example.course.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -30,15 +29,14 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getCourseById(String id) {
-        return courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with id: " + id));
     }
 
     @Override
     public Course updateCourse(String id, CourseDTO dto) {
-        Optional<Course> optionalCourse = courseRepository.findById(id);
-        if (!optionalCourse.isPresent()) throw new RuntimeException("Course not found");
-
-        Course course = optionalCourse.get();
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new CourseNotFoundException("Course not found with id: " + id));
         course.setDegree(dto.getDegree());
         course.setDepartment(dto.getDepartment());
         course.setYear(dto.getYear());
@@ -47,12 +45,19 @@ public class CourseServiceImpl implements CourseService {
         course.setSemester(dto.getSemester());
         course.setCredits(dto.getCredits());
         course.setColor(dto.getColor());
-
         return courseRepository.save(course);
     }
 
     @Override
     public void deleteCourse(String id) {
+        if (!courseRepository.existsById(id)) {
+            throw new CourseNotFoundException("Course not found with id: " + id);
+        }
         courseRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Course> getCoursesForStudent(String department, String year, String semester) {
+        return courseRepository.findByDepartmentAndYearAndSemester(department, year, semester);
     }
 }
